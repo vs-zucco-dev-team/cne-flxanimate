@@ -1,5 +1,7 @@
 package flxanimate;
 
+import flixel.math.FlxAngle;
+import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxColor;
 import flixel.graphics.FlxGraphic;
 import openfl.geom.Rectangle;
@@ -98,6 +100,8 @@ class FlxAnimate extends FlxSprite
 	public override function draw():Void
 	{
 		if(alpha <= 0) return;
+
+		//updateSkewMatrix();
 
 		parseElement(anim.curInstance, anim.curFrame, _matrix, colorTransform, true);
 		if (showPivot)
@@ -237,6 +241,8 @@ class FlxAnimate extends FlxSprite
 			else
 				rMatrix.a = rMatrix.d = 0.7 / camera.zoom;
 
+			//rMatrix.concat(_skewMatrix);
+
 			_point.addPoint(origin);
 			if (isPixelPerfectRender(camera))
 			{
@@ -256,6 +262,21 @@ class FlxAnimate extends FlxSprite
 		//#end
 	}
 
+	/*public var skew(default, null):FlxPoint = FlxPoint.get();
+
+	static var _skewMatrix:FlxMatrix = new FlxMatrix();
+
+	function updateSkewMatrix():Void
+	{
+		_skewMatrix.identity();
+
+		if (skew.x != 0 || skew.y != 0)
+		{
+			_skewMatrix.b = Math.tan(skew.y * FlxAngle.TO_RAD);
+			_skewMatrix.c = Math.tan(skew.x * FlxAngle.TO_RAD);
+		}
+	}*/
+
 	function limbOnScreen(limb:FlxFrame, m:FlxMatrix, ?Camera:FlxCamera)
 	{
 		if (Camera == null)
@@ -264,7 +285,7 @@ class FlxAnimate extends FlxSprite
 		var minX:Float = x + m.tx - offset.x - scrollFactor.x * Camera.scroll.x;
 		var minY:Float = y + m.ty - offset.y - scrollFactor.y * Camera.scroll.y;
 
-		var radiusX:Float =  limb.frame.width * Math.max(1, m.a);
+		var radiusX:Float = limb.frame.width * Math.max(1, m.a);
 		var radiusY:Float = limb.frame.height * Math.max(1, m.d);
 		var radius:Float = Math.max(radiusX, radiusY);
 		radius *= FlxMath.SQUARE_ROOT_OF_TWO;
@@ -325,14 +346,12 @@ class FlxAnimate extends FlxSprite
 	}
 
 	override function destroy()
-	{
-		if (anim != null)
-			anim.destroy();
-		anim = null;
-		// #if FLX_SOUND_SYSTEM
-		// if (audio != null)
-		// 	audio.destroy();
-		// #end
+		{
+		/*#if FLX_SOUND_SYSTEM
+		audio = FlxDestroyUtil.destroy(audio);
+		#end*/
+		anim = FlxDestroyUtil.destroy(anim);
+		skew = FlxDestroyUtil.put(skew);
 		super.destroy();
 	}
 
