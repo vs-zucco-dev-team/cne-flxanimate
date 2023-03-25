@@ -42,9 +42,9 @@ class FlxAnimate extends FlxSprite
 	// #if FLX_SOUND_SYSTEM
 	// public var audio:FlxSound;
 	// #end
-	
+
 	// public var rectangle:FlxRect;
-	
+
 	public var showPivot(default, set):Bool = false;
 
 	var _pivot:FlxFrame;
@@ -120,11 +120,11 @@ class FlxAnimate extends FlxSprite
 
 
 		if (instance.bitmap != null)
-		{	
+		{
 			drawLimb(frames.getByName(instance.bitmap), matrix, colorEffect);
 			return;
 		}
-		
+
 		var symbol = anim.symbolDictionary.get(instance.symbol.name);
 		var firstFrame:Int = instance.symbol.firstFrame + curFrame;
 		switch (instance.symbol.type)
@@ -139,22 +139,22 @@ class FlxAnimate extends FlxSprite
 			case PlayOnce: cast FlxMath.bound(firstFrame, 0, symbol.length - 1);
 			default: firstFrame;
 		}
-		
+
 		var layers = symbol.timeline.getList();
 		for (i in 0...layers.length)
 		{
 			var layer = layers[layers.length - 1 - i];
-			
+
 			if (!layer.visible && mainSymbol) continue;
 			var frame = layer.get(firstFrame);
-			
+
 			if (frame == null) continue;
 
 			if (frame.callbacks != null)
 			{
 				frame.fireCallbacks();
 			}
-			
+
 			for (element in frame.getList())
 			{
 				var firstframe = 0;
@@ -250,7 +250,7 @@ class FlxAnimate extends FlxSprite
 			#end
 		}
 		// doesnt work, needs to be remade
-		//#if FLX_DEBUG 
+		//#if FLX_DEBUG
 		//if (FlxG.debugger.drawDebug)
 		//	drawDebug();
 		//#end
@@ -263,7 +263,7 @@ class FlxAnimate extends FlxSprite
 
 		var minX:Float = x + m.tx - offset.x - scrollFactor.x * Camera.scroll.x;
 		var minY:Float = y + m.ty - offset.y - scrollFactor.y * Camera.scroll.y;
-		
+
 		var radiusX:Float =  limb.frame.width * Math.max(1, m.a);
 		var radiusY:Float = limb.frame.height * Math.max(1, m.d);
 		var radius:Float = Math.max(radiusX, radiusY);
@@ -324,8 +324,8 @@ class FlxAnimate extends FlxSprite
 		return Value;
 	}
 
-	override function destroy()      
-	{                                                                
+	override function destroy()
+	{
 		if (anim != null)
 			anim.destroy();
 		anim = null;
@@ -336,7 +336,7 @@ class FlxAnimate extends FlxSprite
 		super.destroy();
 	}
 
-	public override function updateAnimation(elapsed:Float) 
+	public override function updateAnimation(elapsed:Float)
 	{
 		anim.update(elapsed);
 	}
@@ -382,7 +382,7 @@ class FlxAnimate extends FlxSprite
 		if (haxe.io.Path.extension(Path) == "zip")
 		{
 			var thing = Zip.readZip(Assets.getBytes(Path));
-			
+
 			for (list in Zip.unzip(thing))
 			{
 				if (list.fileName.indexOf("Animation.json") != -1)

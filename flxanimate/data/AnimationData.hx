@@ -1,11 +1,9 @@
 package flxanimate.data;
 
-
 import flixel.util.FlxDirection;
 import flixel.util.FlxColor;
 import openfl.geom.ColorTransform;
 import openfl.filters.*;
-
 
 @:noCompletion
 class AnimationData
@@ -38,12 +36,12 @@ class AnimationData
 
 
 		if (effect == null) return colorEffect;
-		
+
 		switch (effect.M)
 		{
 			case Tint, "Tint":
 				var tc = "0x" + effect.TC.substring(1);
-				
+
 				colorEffect = Tint(Std.parseInt(tc), effect.TM);
 			case Alpha, "Alpha":
 				colorEffect = Alpha(effect.AM);
@@ -67,10 +65,10 @@ class AnimationData
 		}
 		return colorEffect;
 	}
-	public static function fromFilterJson(filters:Filters = null) 
+	public static function fromFilterJson(filters:Filters = null)
 	{
 		if (filters == null) return null;
-		
+
 		var bitmapFilter:Array<BitmapFilter> = [];
 
 
@@ -97,35 +95,35 @@ class AnimationData
 	public static function parseColorEffect(colorEffect:ColorEffect = None)
 	{
 		var CT = new ColorTransform();
-        
-        if ([None, null].indexOf(colorEffect) == -1)
-        {
-            var params = colorEffect.getParameters();
-            switch (colorEffect.getName())
-            {
-                case "Tint":
-                    var color:flixel.util.FlxColor = params[0];
-                    var opacity:Float = params[1];
-					
-                    CT.redMultiplier -= opacity;
-                    CT.redOffset = Math.round(color.red * opacity);
-                    CT.greenMultiplier -= opacity;
-                    CT.greenOffset = Math.round(color.green * opacity);
-                    CT.blueMultiplier -= opacity;
-                    CT.blueOffset = Math.round(color.blue * opacity);
-					
-                case "Alpha":
-                    CT.alphaMultiplier = params[0];
-                case "Brightness":
+
+		if ([None, null].indexOf(colorEffect) == -1)
+		{
+			var params = colorEffect.getParameters();
+			switch (colorEffect.getName())
+			{
+				case "Tint":
+					var color:flixel.util.FlxColor = params[0];
+					var opacity:Float = params[1];
+
+					CT.redMultiplier -= opacity;
+					CT.redOffset = Math.round(color.red * opacity);
+					CT.greenMultiplier -= opacity;
+					CT.greenOffset = Math.round(color.green * opacity);
+					CT.blueMultiplier -= opacity;
+					CT.blueOffset = Math.round(color.blue * opacity);
+
+				case "Alpha":
+					CT.alphaMultiplier = params[0];
+				case "Brightness":
 
 
-                    CT.redMultiplier = CT.greenMultiplier = CT.blueMultiplier -= Math.abs(params[0]);
-                    if (params[0] >= 0)
-                        CT.redOffset = CT.greenOffset = CT.blueOffset = 255 * params[0];
-                case "Advanced":
-                    CT.concat(params[0]);
-            }
-        }
+					CT.redMultiplier = CT.greenMultiplier = CT.blueMultiplier -= Math.abs(params[0]);
+					if (params[0] >= 0)
+						CT.redOffset = CT.greenOffset = CT.blueOffset = 255 * params[0];
+				case "Advanced":
+					CT.concat(params[0]);
+			}
+		}
 
 
 		return CT;
@@ -135,11 +133,11 @@ class AnimationData
 
 enum ColorEffect
 {
-    None;
-    Brightness(Bright:Float);
-    Tint(Color:flixel.util.FlxColor, Opacity:Float);
-    Alpha(Alpha:Float);
-    Advanced(transform:ColorTransform);
+	None;
+	Brightness(Bright:Float);
+	Tint(Color:flixel.util.FlxColor, Opacity:Float);
+	Alpha(Alpha:Float);
+	Advanced(transform:ColorTransform);
 }
 enum Loop
 {
@@ -235,7 +233,7 @@ abstract Animation({}) from {}
 	public var STI(get, never):StageInstance;
 
 
-	function get_SN():String 
+	function get_SN():String
 	{
 		return AnimationData.setFieldBool(this, ["SN", "SYMBOL_name"]);
 	}
@@ -256,7 +254,7 @@ abstract Animation({}) from {}
  * The main position how the symbol you exported was set, Acting almost identically as an `Element`, with the exception of not having an Atlas Sprite to call (not that I'm aware of).
  * **WARNING:** This may depend on how you exported your texture atlas, Meaning that this can be `null`
  */
-abstract StageInstance({}) 
+abstract StageInstance({})
 {
 	/**
 	 * The instance of the Element flagged as a `Symbol`.
@@ -285,7 +283,7 @@ abstract SymbolData({}) from {}
 	public var TL(get, never):Timeline;
 
 
-	function get_SN():String 
+	function get_SN():String
 	{
 		return AnimationData.setFieldBool(this, ["SN", "SYMBOL_name"]);
 	}
@@ -363,12 +361,12 @@ abstract Layers({}) from {}
  */
 abstract MetaData({}) from {}
 {
-	
+
 	/**
 	 * Framerate of the anim, nothing much here.
 	 */
 	public var FRT(get, never):Float;
-	
+
 	function get_FRT()
 	{
 		return AnimationData.setFieldBool(this, ["FRT", "framerate"]);
@@ -763,7 +761,7 @@ abstract BlurFilter({})
 	}
 }
 @:forward
-abstract GlowFilter(BlurFilter) 
+abstract GlowFilter(BlurFilter)
 {
 	public var C(get, never):String;
 	public var A(get, never):Float;
@@ -842,12 +840,12 @@ abstract AtlasSymbolInstance(Bitmap) from {}
 }
 
 
-typedef Matrix3D = 
+typedef Matrix3D =
 {
-	var m00:Float; 
-	var m01:Float; 
-	var m02:Float; 
-	var m03:Float; 
+	var m00:Float;
+	var m01:Float;
+	var m02:Float;
+	var m03:Float;
 	var m10:Float;
 	var m11:Float;
 	var m12:Float;
@@ -864,7 +862,7 @@ typedef Matrix3D =
 /**
  * Position Stuff
  */
-typedef TransformationPoint = 
+typedef TransformationPoint =
 {
 	var x:Float;
 	var y:Float;
