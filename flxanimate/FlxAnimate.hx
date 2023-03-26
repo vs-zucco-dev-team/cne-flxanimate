@@ -351,7 +351,7 @@ class FlxAnimate extends FlxSprite
 		audio = FlxDestroyUtil.destroy(audio);
 		#end*/
 		anim = FlxDestroyUtil.destroy(anim);
-		skew = FlxDestroyUtil.put(skew);
+		//skew = FlxDestroyUtil.put(skew);
 		super.destroy();
 	}
 
