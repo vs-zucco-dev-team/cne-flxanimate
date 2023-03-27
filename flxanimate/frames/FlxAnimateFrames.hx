@@ -74,9 +74,10 @@ class FlxAnimateFrames extends FlxAtlasFrames
 				var curImage = BitmapData.fromBytes(imagemap[curJson.meta.image]);
 				if (curImage != null)
 				{
+					var graphic = FlxG.bitmap.add(curImage);
 					for (sprites in curJson.ATLAS.SPRITES)
 					{
-						frames.pushFrame(textureAtlasHelper(curImage, sprites.SPRITE, curJson.meta));
+						frames.pushFrame(textureAtlasHelper(graphic, sprites.SPRITE, curJson.meta));
 					}
 				}
 				else
@@ -99,7 +100,7 @@ class FlxAnimateFrames extends FlxAtlasFrames
 						spritemapFrames = new FlxAnimateFrames();
 						for (curSprite in curJson.ATLAS.SPRITES)
 						{
-							spritemapFrames.pushFrame(textureAtlasHelper(graphic.bitmap,curSprite.SPRITE, curJson.meta));
+							spritemapFrames.pushFrame(textureAtlasHelper(graphic,curSprite.SPRITE, curJson.meta));
 						}
 					}
 					graphic.addFrameCollection(spritemapFrames);
@@ -122,7 +123,7 @@ class FlxAnimateFrames extends FlxAtlasFrames
 						spritemapFrames = new FlxAnimateFrames();
 						for (curSprite in curJson.ATLAS.SPRITES)
 						{
-							spritemapFrames.pushFrame(textureAtlasHelper(graphic.bitmap,curSprite.SPRITE, curJson.meta));
+							spritemapFrames.pushFrame(textureAtlasHelper(graphic,curSprite.SPRITE, curJson.meta));
 						}
 					}
 					graphic.addFrameCollection(spritemapFrames);
@@ -475,27 +476,24 @@ class FlxAnimateFrames extends FlxAtlasFrames
 		Frames.addAtlasFrame(frameRect, sourceSize, offset, name, angle);
 	}
 
-	static function textureAtlasHelper(SpriteMap:BitmapData, limb:AnimateSpriteData, curMeta:Meta)
+	static function textureAtlasHelper(SpriteMap:FlxGraphic, limb:AnimateSpriteData, curMeta:Meta)
 	{
 		var width = (limb.rotated) ? limb.h : limb.w;
 		var height = (limb.rotated) ? limb.w : limb.h;
-		var sprite = new BitmapData(width, height, true, 0);
-		var matrix = new FlxMatrix(1,0,0,1,-limb.x,-limb.y);
-		if (limb.rotated)
-		{
-			matrix.rotateByNegative90();
-			matrix.translate(0, height);
-		}
-		sprite.draw(SpriteMap, matrix);
-
 		@:privateAccess
-		var curFrame = new FlxFrame(FlxG.bitmap.add(sprite));
+		var curFrame = new FlxFrame(SpriteMap);
 		curFrame.name = limb.name;
 		curFrame.sourceSize.set(width, height);
-		curFrame.frame = new FlxRect(0,0, width, height);
+
+		var padding:Float = 1;
+		curFrame.offset.set(padding, padding);
+		curFrame.frame = new FlxRect(limb.x - padding, limb.y - padding, width+padding*2, height+padding*2);
+
+		if (limb.rotated)
+			curFrame.angle = FlxFrameAngle.ANGLE_NEG_90;
 		return curFrame;
 	}
-
+	
 	static function texturePackerHelper(FrameName:String, FrameData:Dynamic, Frames:FlxAtlasFrames):Void
 	{
 		var rotated:Bool = FrameData.rotated;
