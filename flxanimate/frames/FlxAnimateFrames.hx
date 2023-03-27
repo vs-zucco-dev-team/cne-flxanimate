@@ -1,5 +1,6 @@
 package flxanimate.frames;
 
+import flixel.util.FlxSort;
 import flixel.graphics.frames.FlxFramesCollection;
 import flxanimate.data.AnimationData.OneOfTwo;
 import openfl.geom.Rectangle;
@@ -89,48 +90,12 @@ class FlxAnimateFrames extends FlxAtlasFrames
 		{
 			if (Assets.exists('$Path/spritemap.json'))
 			{
-				var curJson:AnimateAtlas = haxe.Json.parse(StringTools.replace(Assets.getText('$Path/spritemap.json'), String.fromCharCode(0xFEFF), ""));
-				var curSpritemap = Assets.getBitmapData('$Path/${curJson.meta.image}');
-				if (curSpritemap != null)
-				{
-					var graphic = FlxG.bitmap.add(curSpritemap);
-					var spritemapFrames = FlxAtlasFrames.findFrame(graphic);
-					if (spritemapFrames == null)
-					{
-						spritemapFrames = new FlxAnimateFrames();
-						for (curSprite in curJson.ATLAS.SPRITES)
-						{
-							spritemapFrames.pushFrame(textureAtlasHelper(graphic,curSprite.SPRITE, curJson.meta));
-						}
-					}
-					graphic.addFrameCollection(spritemapFrames);
-					frames.concat(spritemapFrames);
-				}
-				else
-					FlxG.log.error('the image called "${curJson.meta.image}" does not exist in Path $Path, maybe you changed the image Path somewhere else?');
+				parseAtlasSpritemap(Path, 'spritemap.json', frames);
 			}
 			var i = 1;
 			while (Assets.exists('$Path/spritemap$i.json'))
 			{
-				var curJson:AnimateAtlas = haxe.Json.parse(StringTools.replace(Assets.getText('$Path/spritemap$i.json'), String.fromCharCode(0xFEFF), ""));
-				var curSpritemap = Assets.getBitmapData('$Path/${curJson.meta.image}');
-				if (curSpritemap != null)
-				{
-					var graphic = FlxG.bitmap.add(curSpritemap);
-					var spritemapFrames = FlxAtlasFrames.findFrame(graphic);
-					if (spritemapFrames == null)
-					{
-						spritemapFrames = new FlxAnimateFrames();
-						for (curSprite in curJson.ATLAS.SPRITES)
-						{
-							spritemapFrames.pushFrame(textureAtlasHelper(graphic,curSprite.SPRITE, curJson.meta));
-						}
-					}
-					graphic.addFrameCollection(spritemapFrames);
-					frames.concat(spritemapFrames);
-				}
-				else
-					FlxG.log.error('the image called "${curJson.meta.image}" does not exist in Path $Path, maybe you changed the image Path somewhere else?');
+				parseAtlasSpritemap(Path, 'spritemap$i.json', frames);
 				i++;
 			}
 		}
@@ -141,6 +106,53 @@ class FlxAnimateFrames extends FlxAtlasFrames
 		}
 		return frames;
 	}
+
+	public static function parseAtlasSpritemap(Path:String, name:String, frames:FlxAnimateFrames) {
+		var curJson:AnimateAtlas = haxe.Json.parse(StringTools.replace(Assets.getText('$Path/$name'), String.fromCharCode(0xFEFF), ""));
+		var curSpritemap = Assets.getBitmapData('$Path/${curJson.meta.image}');
+		if (curSpritemap != null)
+		{
+			var graphic = FlxG.bitmap.add(curSpritemap);
+			var spritemapFrames = FlxAtlasFrames.findFrame(graphic);
+			var padding:Float = 0;
+			if (curJson.ATLAS.SPRITES.length > 1) { // 2 or more, detect padding
+				var sprites = [for(s in curJson.ATLAS.SPRITES) s.SPRITE];
+				sprites.sort((n1, n2) -> Std.int(n1.x - n2.x));
+
+				var lowestY:Float = Math.POSITIVE_INFINITY;
+				var yMap:Map<Int, Bool> = [];
+				for(s in sprites) {
+					var y = Std.int(s.y);
+					if (s.y < lowestY) {
+						yMap.set(y, yMap[y] != null);
+
+						if (yMap[y])
+							lowestY = y;
+					}
+				}
+				if (lowestY != Math.POSITIVE_INFINITY) {
+					var firstRowSprites = [for(s in sprites) if (s.y == lowestY) s];
+					if (firstRowSprites.length > 1) {
+						padding = firstRowSprites[1].x - firstRowSprites[0].x - firstRowSprites[0].w;
+					}
+				}
+			}
+			trace(padding);
+			if (spritemapFrames == null)
+			{
+				spritemapFrames = new FlxAnimateFrames();
+				for (curSprite in curJson.ATLAS.SPRITES)
+				{
+					spritemapFrames.pushFrame(textureAtlasHelper(graphic,curSprite.SPRITE, curJson.meta, padding));
+				}
+			}
+			graphic.addFrameCollection(spritemapFrames);
+			frames.concat(spritemapFrames);
+		}
+		else
+			FlxG.log.error('the image called "${curJson.meta.image}" does not exist in Path $Path, maybe you changed the image Path somewhere else?');
+	}
+
 	public function concat(frames:FlxFramesCollection)
 	{
 		if (parents.indexOf(frames.parent) == -1)
@@ -476,7 +488,7 @@ class FlxAnimateFrames extends FlxAtlasFrames
 		Frames.addAtlasFrame(frameRect, sourceSize, offset, name, angle);
 	}
 
-	static function textureAtlasHelper(SpriteMap:FlxGraphic, limb:AnimateSpriteData, curMeta:Meta)
+	static function textureAtlasHelper(SpriteMap:FlxGraphic, limb:AnimateSpriteData, curMeta:Meta, ?padding:Float = 0)
 	{
 		var width = (limb.rotated) ? limb.h : limb.w;
 		var height = (limb.rotated) ? limb.w : limb.h;
@@ -485,9 +497,9 @@ class FlxAnimateFrames extends FlxAtlasFrames
 		curFrame.name = limb.name;
 		curFrame.sourceSize.set(width, height);
 
-		var padding:Float = 1;
-		curFrame.offset.set(padding, padding);
-		curFrame.frame = new FlxRect(limb.x - padding, limb.y - padding, width+padding*2, height+padding*2);
+		var halfPadding = padding / 2;
+		curFrame.offset.set(halfPadding, halfPadding);
+		curFrame.frame = new FlxRect(limb.x - halfPadding, limb.y - halfPadding, width+padding, height+padding);
 
 		if (limb.rotated)
 			curFrame.angle = FlxFrameAngle.ANGLE_NEG_90;

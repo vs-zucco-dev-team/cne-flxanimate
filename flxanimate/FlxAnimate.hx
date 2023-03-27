@@ -230,6 +230,7 @@ class FlxAnimate extends FlxSprite
 		for (camera in cameras)
 		{
 			rMatrix.identity();
+			rMatrix.translate(-limb.offset.x, -limb.offset.y);
 			rMatrix.concat(_matrix);
 			if (!camera.visible || !camera.exists || !limbOnScreen(limb, _matrix, camera))
 				return;
