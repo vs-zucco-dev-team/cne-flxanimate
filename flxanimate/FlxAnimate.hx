@@ -101,7 +101,7 @@ class FlxAnimate extends FlxSprite
 	{
 		if(alpha <= 0) return;
 
-		//updateSkewMatrix();
+		updateSkewMatrix();
 
 		parseElement(anim.curInstance, anim.curFrame, _matrix, colorTransform, true);
 		if (showPivot)
@@ -237,12 +237,12 @@ class FlxAnimate extends FlxSprite
 
 			getScreenPosition(_point, camera).subtractPoint(offset);
 			rMatrix.translate(-origin.x, -origin.y);
-			if (limb.name != "pivot")
+			if (!showPivot && limb.name != "pivot")
 				rMatrix.scale(scale.x, scale.y);
 			else
 				rMatrix.a = rMatrix.d = 0.7 / camera.zoom;
 
-			//rMatrix.concat(_skewMatrix);
+			rMatrix.concat(_skewMatrix);
 
 			_point.addPoint(origin);
 			if (isPixelPerfectRender(camera))
@@ -263,7 +263,7 @@ class FlxAnimate extends FlxSprite
 		//#end
 	}
 
-	/*public var skew(default, null):FlxPoint = FlxPoint.get();
+	public var skew(default, null):FlxPoint = FlxPoint.get();
 
 	static var _skewMatrix:FlxMatrix = new FlxMatrix();
 
@@ -276,7 +276,7 @@ class FlxAnimate extends FlxSprite
 			_skewMatrix.b = Math.tan(skew.y * FlxAngle.TO_RAD);
 			_skewMatrix.c = Math.tan(skew.x * FlxAngle.TO_RAD);
 		}
-	}*/
+	}
 
 	function limbOnScreen(limb:FlxFrame, m:FlxMatrix, ?Camera:FlxCamera)
 	{
@@ -347,12 +347,12 @@ class FlxAnimate extends FlxSprite
 	}
 
 	override function destroy()
-		{
+	{
 		/*#if FLX_SOUND_SYSTEM
 		audio = FlxDestroyUtil.destroy(audio);
 		#end*/
 		anim = FlxDestroyUtil.destroy(anim);
-		//skew = FlxDestroyUtil.put(skew);
+		skew = FlxDestroyUtil.put(skew);
 		super.destroy();
 	}
 

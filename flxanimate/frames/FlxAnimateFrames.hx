@@ -505,7 +505,7 @@ class FlxAnimateFrames extends FlxAtlasFrames
 			curFrame.angle = FlxFrameAngle.ANGLE_NEG_90;
 		return curFrame;
 	}
-	
+
 	static function texturePackerHelper(FrameName:String, FrameData:Dynamic, Frames:FlxAtlasFrames):Void
 	{
 		var rotated:Bool = FrameData.rotated;
