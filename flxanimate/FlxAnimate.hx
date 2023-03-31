@@ -1,5 +1,6 @@
 package flxanimate;
 
+import openfl.geom.Matrix;
 import flixel.math.FlxAngle;
 import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxColor;
