@@ -26,6 +26,7 @@ import flixel.math.FlxMatrix;
 import openfl.geom.ColorTransform;
 import flixel.math.FlxMath;
 import flixel.FlxBasic;
+import flixel.util.FlxPool;
 
 typedef Settings = {
 	?ButtonSettings:Map<String, flxanimate.animate.FlxAnim.ButtonSettings>,
@@ -38,8 +39,23 @@ typedef Settings = {
 	?Offset:FlxPoint,
 }
 
+class DestroyableColorTransform extends ColorTransform implements IFlxDestroyable {
+	public function destroy() {
+		@:privateAccess
+		__identity();
+	}
+}
+
+class DestroyableFlxMatrix extends FlxMatrix implements IFlxDestroyable {
+	public function destroy() {
+		identity();
+	}
+}
+
 class FlxAnimate extends FlxSprite
 {
+	public static var colorTransformsPool:FlxPool<DestroyableColorTransform> = new FlxPool(DestroyableColorTransform);
+	public static var matrixesPool:FlxPool<DestroyableFlxMatrix> = new FlxPool(DestroyableFlxMatrix);
 	public var anim(default, null):FlxAnim;
 
 	// #if FLX_SOUND_SYSTEM
@@ -114,8 +130,8 @@ class FlxAnimate extends FlxSprite
 	 */
 	function parseElement(instance:FlxElement, curFrame:Int, m:FlxMatrix, colorFilter:ColorTransform, mainSymbol:Bool = false)
 	{
-		var colorEffect = new ColorTransform();
-		var matrix = new FlxMatrix();
+		var colorEffect = colorTransformsPool.get();
+		var matrix = matrixesPool.get();
 
 		if (instance.symbol != null) colorEffect.concat(instance.symbol._colorEffect);
 		matrix.concat(instance.matrix);
@@ -127,6 +143,9 @@ class FlxAnimate extends FlxSprite
 		if (instance.bitmap != null)
 		{
 			drawLimb(frames.getByName(instance.bitmap), matrix, colorEffect);
+
+			colorTransformsPool.put(colorEffect);
+			matrixesPool.put(matrix);
 			return;
 		}
 
@@ -167,12 +186,16 @@ class FlxAnimate extends FlxSprite
 				{
 					firstframe = firstFrame - frame.index;
 				}
-				var coloreffect = new ColorTransform();
+				var coloreffect = colorTransformsPool.get();
 				coloreffect.concat(frame._colorEffect);
 				coloreffect.concat(colorEffect);
 				parseElement(element, firstframe, matrix, coloreffect);
+				colorTransformsPool.put(coloreffect);
 			}
 		}
+
+		colorTransformsPool.put(colorEffect);
+		matrixesPool.put(matrix);
 	}
 
 	var pressed:Bool = false;
@@ -223,7 +246,7 @@ class FlxAnimate extends FlxSprite
 
 	static var rMatrix = new FlxMatrix();
 
-	function drawLimb(limb:FlxFrame, _matrix:FlxMatrix, ?colorTransform:ColorTransform)
+	function drawLimb(limb:FlxFrame, _matrix:FlxMatrix, ?colorTransform:DestroyableColorTransform)
 	{
 		if (alpha == 0 || colorTransform != null && (colorTransform.alphaMultiplier == 0 || colorTransform.alphaOffset == -255) || limb == null || limb.type == EMPTY)
 			return;
@@ -264,6 +287,7 @@ class FlxAnimate extends FlxSprite
 			FlxBasic.visibleCount++;
 			#end
 		}
+		colorTransformsPool.put(colorTransform);
 		// doesnt work, needs to be remade
 		//#if FLX_DEBUG
 		//if (FlxG.debugger.drawDebug)

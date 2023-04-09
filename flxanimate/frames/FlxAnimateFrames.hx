@@ -89,9 +89,7 @@ class FlxAnimateFrames extends FlxAtlasFrames
 		else
 		{
 			if (Assets.exists('$Path/spritemap.json'))
-			{
 				parseAtlasSpritemap(Path, 'spritemap.json', frames);
-			}
 			var i = 1;
 			while (Assets.exists('$Path/spritemap$i.json'))
 			{
@@ -99,7 +97,7 @@ class FlxAnimateFrames extends FlxAtlasFrames
 				i++;
 			}
 		}
-		if (frames.frames == [])
+		if (frames.frames.length <= 0)
 		{
 			FlxG.log.error("the Frames parsing couldn't parse any of the frames, it's completely empty! \n Maybe you misspelled the Path?");
 			return null;
