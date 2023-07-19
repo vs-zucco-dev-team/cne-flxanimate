@@ -64,6 +64,10 @@ class FlxAnimate extends FlxSprite
 
 	// public var rectangle:FlxRect;
 
+	#if !FLX_CNE_FORK
+	public var shaderEnabled:Bool = false;
+	#end
+
 	public var showPivot(default, set):Bool = false;
 
 	var _pivot:FlxFrame;
@@ -84,6 +88,7 @@ class FlxAnimate extends FlxSprite
 	public function new(X:Float = 0, Y:Float = 0, ?Path:String, ?Settings:Settings)
 	{
 		super(X, Y);
+		shaderEnabled = false;
 		anim = new FlxAnim(this);
 		if (Path != null)
 			loadAtlas(Path);
@@ -282,7 +287,7 @@ class FlxAnimate extends FlxSprite
 			}
 
 			rMatrix.translate(_point.x, _point.y);
-			camera.drawPixels(limb, null, rMatrix, colorTransform, blend, antialiasing);
+			camera.drawPixels(limb, null, rMatrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
 			#if FLX_DEBUG
 			FlxBasic.visibleCount++;
 			#end
