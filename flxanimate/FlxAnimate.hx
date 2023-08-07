@@ -251,7 +251,7 @@ class FlxAnimate extends FlxSprite
 
 	static var rMatrix = new FlxMatrix();
 
-	function drawLimb(limb:FlxFrame, _matrix:FlxMatrix, ?colorTransform:DestroyableColorTransform)
+	function drawLimb(limb:FlxFrame, _matrix:FlxMatrix, ?colorTransform:ColorTransform)
 	{
 		if (alpha == 0 || colorTransform != null && (colorTransform.alphaMultiplier == 0 || colorTransform.alphaOffset == -255) || limb == null || limb.type == EMPTY)
 			return;
@@ -292,7 +292,6 @@ class FlxAnimate extends FlxSprite
 			FlxBasic.visibleCount++;
 			#end
 		}
-		colorTransformsPool.put(colorTransform);
 		// doesnt work, needs to be remade
 		//#if FLX_DEBUG
 		//if (FlxG.debugger.drawDebug)
