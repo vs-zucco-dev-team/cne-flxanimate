@@ -266,7 +266,7 @@ class FlxAnimate extends FlxSprite
 
 			getScreenPosition(_point, camera).subtractPoint(offset);
 			rMatrix.translate(-origin.x, -origin.y);
-			if (!showPivot && limb.name != "pivot")
+			if (limb != _pivot)
 				rMatrix.scale(scale.x, scale.y);
 			else
 				rMatrix.a = rMatrix.d = 0.7 / camera.zoom;
