@@ -129,13 +129,26 @@ class FlxAnimateFrames extends FlxAtlasFrames
 					}
 				}
 				if (lowestY != Math.POSITIVE_INFINITY) {
-					var firstRowSprites = [for(s in sprites) if (s.y == lowestY) s];
+					var _firstRowSprites = [for(s in sprites) if (s.y == lowestY) s];
+					var dedupCheck:Array<Int> = [];
+					var firstRowSprites = [];
+					for(s in _firstRowSprites) {
+						if(!dedupCheck.contains(Std.int(s.x))) {
+							firstRowSprites.push(s);
+							dedupCheck.push(Std.int(s.x));
+						}
+					}
 					if (firstRowSprites.length > 1) {
 						padding = firstRowSprites[1].x - firstRowSprites[0].x - firstRowSprites[0].w;
 					}
 				}
 			}
-			trace(padding);
+			if(padding < 0) {
+				trace("BUG: " + padding + " => 0");
+				padding = 0;
+			} else {
+				trace(padding);
+			}
 			if (spritemapFrames == null)
 			{
 				spritemapFrames = new FlxAnimateFrames();
