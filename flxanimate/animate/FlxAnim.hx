@@ -39,8 +39,8 @@ class FlxAnim implements IFlxDestroyable
 
 	public var metadata:FlxMetaData;
 
-	public var curSymbol(get, null):FlxSymbol;
-	public var finished(get, null):Bool;
+	public var curSymbol(get, never):FlxSymbol;
+	public var finished(get, never):Bool;
 	public var reversed(get, set):Bool;
 	/**
 		Checks if the movieclip should move or not. for having a similar experience to swfs
@@ -68,7 +68,7 @@ class FlxAnim implements IFlxDestroyable
 	/**
 	 * Internal, the parsed loop type
 	 */
-	var loopType(get, null):Loop;
+	var loopType(get, never):Loop;
 
 	public var symbolType(get, set):SymbolT;
 

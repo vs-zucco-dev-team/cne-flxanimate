@@ -10,8 +10,8 @@ class FlxTimeline
 	@:allow(flxanimate.FlxAnimate)
 	var _layers:Array<FlxLayer>;
 
-	public var length(get, null):Int;
-	public var totalFrames(get, null):Int;
+	public var length(get, never):Int;
+	public var totalFrames(get, never):Int;
 	public function new(?layers:Array<FlxLayer>)
 	{
 		_layers = (layers != null) ? layers : [];

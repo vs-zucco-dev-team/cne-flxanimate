@@ -22,7 +22,7 @@ class FlxKeyFrame
 	@:allow(flxanimate.FlxAnimate)
 	var _elements(default, null):Array<FlxElement>;
 	@:allow(flxanimate.FlxAnimate)
-	var _colorEffect(get, null):ColorTransform;
+	var _colorEffect(get, never):ColorTransform;
 
 	public function new(index:Int, ?duration:Int = 1, ?elements:Array<FlxElement>, ?colorEffect:ColorEffect, ?name:String)
 	{

@@ -23,7 +23,7 @@ class SymbolParameters
 
 	@:allow(flxanimate.FlxAnimate)
 	@:allow(flxanimate.animate.FlxAnim)
-	var _colorEffect(get, null):ColorTransform;
+	var _colorEffect(get, never):ColorTransform;
 
 	public var transformationPoint:FlxPoint;
 

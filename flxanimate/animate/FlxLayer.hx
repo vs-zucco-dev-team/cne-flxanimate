@@ -24,7 +24,7 @@ class FlxLayer implements IFlxDestroyable
 
 	public var visible:Bool;
 
-	public var length(get, null):Int;
+	public var length(get, never):Int;
 
 	public function new(?name:String, ?keyframes:Array<FlxKeyFrame>)
 	{

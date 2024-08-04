@@ -13,14 +13,14 @@ class FlxSymbol
 {
 	public var timeline(default, null):FlxTimeline;
 
-	public var length(get, null):Int;
+	public var length(get, never):Int;
 
 	public var name(default, null):String;
 	@:noCompletion
 	@:deprecated("")
 	public var labels(default, null):Map<String, FlxLabel>;
 
-	public var layers(get, null):Array<String>;
+	public var layers(get, never):Array<String>;
 
 	public var curFrame(get, set):Int;
 
@@ -35,7 +35,6 @@ class FlxSymbol
 	@:allow(flxanimate.animate.FlxAnim)
 	function new(name:String, timeline:FlxTimeline)
 	{
-		layers = [];
 		curFrame = 0;
 		this.timeline = timeline;
 		this.name = name;
