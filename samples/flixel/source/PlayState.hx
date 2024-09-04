@@ -16,9 +16,13 @@ class PlayState extends FlxState
 		bg.screenCenter();
 		add(bg);
 
-		char = new FlxAnimate(0, 0, 'assets/images/ninja-girl');
+		char = new FlxAnimate(0, 0, 'assets/images/lyrics');
 		char.antialiasing = true;
 		add(char);
+		char.screenCenter();
+
+		char.scale.set(0.5, 0.5);
+		char.x += 300;
 
 		super.create();
 	}
@@ -33,8 +37,13 @@ class PlayState extends FlxState
 				char.anim.pause();
 		}
 
-		char.x = FlxG.mouse.x;
-		char.y = FlxG.mouse.y;
+		if(FlxG.keys.justPressed.W)
+		{
+			char.flipX = !char.flipX;
+		}
+
+		/*char.x = FlxG.mouse.x;
+		char.y = FlxG.mouse.y;*/
 
 		if (FlxG.keys.justPressed.E)
 			FlxG.camera.zoom += 0.25;

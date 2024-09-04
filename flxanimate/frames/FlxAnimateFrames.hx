@@ -501,8 +501,9 @@ class FlxAnimateFrames extends FlxAtlasFrames
 
 	static function textureAtlasHelper(SpriteMap:FlxGraphic, limb:AnimateSpriteData, curMeta:Meta, ?padding:Float = 0)
 	{
-		var width = (limb.rotated) ? limb.h : limb.w;
-		var height = (limb.rotated) ? limb.w : limb.h;
+		var rotated = limb.rotated;
+		var width = (rotated) ? limb.h : limb.w;
+		var height = (rotated) ? limb.w : limb.h;
 		@:privateAccess
 		var curFrame = new FlxFrame(SpriteMap);
 		curFrame.name = limb.name;
@@ -510,9 +511,9 @@ class FlxAnimateFrames extends FlxAtlasFrames
 
 		var halfPadding = padding / 2;
 		curFrame.offset.set(halfPadding, halfPadding);
-		curFrame.frame = new FlxRect(limb.x - halfPadding, limb.y - halfPadding, width+padding, height+padding);
+		curFrame.frame = new FlxRect(limb.x - halfPadding, limb.y - halfPadding, limb.w+padding, limb.h+padding);
 
-		if (limb.rotated)
+		if (rotated)
 			curFrame.angle = FlxFrameAngle.ANGLE_NEG_90;
 		return curFrame;
 	}

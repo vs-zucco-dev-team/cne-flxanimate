@@ -52,11 +52,14 @@ class DestroyableFlxMatrix extends FlxMatrix implements IFlxDestroyable {
 	}
 }
 
+@:access(openfl.geom.Rectangle)
 class FlxAnimate extends FlxSprite
 {
 	public static var colorTransformsPool:FlxPool<DestroyableColorTransform> = new FlxPool(DestroyableColorTransform);
 	public static var matrixesPool:FlxPool<DestroyableFlxMatrix> = new FlxPool(DestroyableFlxMatrix);
 	public var anim(default, null):FlxAnim;
+
+	//var rect:Rectangle;
 
 	// #if FLX_SOUND_SYSTEM
 	// public var audio:FlxSound;
@@ -94,6 +97,8 @@ class FlxAnimate extends FlxSprite
 			loadAtlas(Path);
 		if (Settings != null)
 			setTheSettings(Settings);
+
+		//rect = new Rectangle();
 	}
 
 	function set_showPivot(v:Bool) {
@@ -259,7 +264,12 @@ class FlxAnimate extends FlxSprite
 		for (camera in cameras)
 		{
 			rMatrix.identity();
-			rMatrix.translate(-limb.offset.x, -limb.offset.y);
+			//rMatrix.translate(-limb.offset.x, -limb.offset.y);
+			#if FLX_CNE_FORK
+			limb.prepareMatrix(rMatrix, FlxFrameAngle.ANGLE_0, _checkFlipX() != camera.flipX, _checkFlipY() != camera.flipY);
+			#else
+			limb.prepareMatrix(rMatrix, FlxFrameAngle.ANGLE_0, _checkFlipX(), _checkFlipY());
+			#end
 			rMatrix.concat(_matrix);
 			if (!camera.visible || !camera.exists || !limbOnScreen(limb, _matrix, camera))
 				return;
@@ -297,6 +307,28 @@ class FlxAnimate extends FlxSprite
 		//if (FlxG.debugger.drawDebug)
 		//	drawDebug();
 		//#end
+	}
+
+	@:noCompletion
+	inline function _checkFlipX():Bool
+	{
+		var doFlipX = (flipX != _frame.flipX);
+		//if (animation.curAnim != null)
+		//{
+		//	return doFlipX != animation.curAnim.flipX;
+		//}
+		return doFlipX;
+	}
+
+	@:noCompletion
+	inline function _checkFlipY():Bool
+	{
+		var doFlipY = (flipY != _frame.flipY);
+		//if (animation.curAnim != null)
+		//{
+		//	return doFlipY != animation.curAnim.flipY;
+		//}
+		return doFlipY;
 	}
 
 	public var skew(default, null):FlxPoint = FlxPoint.get();
@@ -346,6 +378,26 @@ class FlxAnimate extends FlxSprite
 
 		return Camera.containsPoint(_point, radius, radius);
 	}
+	/*function limbOnScreen(limb:FlxFrame, m:FlxMatrix, ?Camera:FlxCamera = null)
+	{
+		if (Camera == null)
+			Camera = FlxG.camera;
+
+		limb.frame.copyToFlash(rect);
+
+		rect.offset(-rect.x, -rect.y);
+
+		rect.__transform(rect, m);
+
+		_point.copyFromFlash(rect.topLeft);
+
+		//if ([_indicator, _pivot].indexOf(limb) == -1)
+		//if (_indicator != limb && _pivot != limb)
+		if (_pivot != limb)
+			_flashRect = _flashRect.union(rect);
+
+		return Camera.containsPoint(_point, rect.width, rect.height);
+	}*/
 
 	// function checkSize(limb:FlxFrame, m:FlxMatrix)
 	// {
