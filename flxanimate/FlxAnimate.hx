@@ -312,7 +312,8 @@ class FlxAnimate extends FlxSprite
 	@:noCompletion
 	inline function _checkFlipX():Bool
 	{
-		var doFlipX = (flipX != _frame.flipX);
+		//var doFlipX = (flipX != _frame.flipX);
+		var doFlipX = (false != _frame.flipX);
 		//if (animation.curAnim != null)
 		//{
 		//	return doFlipX != animation.curAnim.flipX;
@@ -323,7 +324,8 @@ class FlxAnimate extends FlxSprite
 	@:noCompletion
 	inline function _checkFlipY():Bool
 	{
-		var doFlipY = (flipY != _frame.flipY);
+		//var doFlipY = (flipY != _frame.flipY);
+		var doFlipY = (false != _frame.flipY);
 		//if (animation.curAnim != null)
 		//{
 		//	return doFlipY != animation.curAnim.flipY;
@@ -424,7 +426,7 @@ class FlxAnimate extends FlxSprite
 			_matrix.a = oldMatrix.a;
 			_matrix.c = oldMatrix.c;
 		}
-		return Value;
+		return flipX = Value;
 	}
 	override function set_flipY(Value:Bool)
 	{
@@ -443,7 +445,7 @@ class FlxAnimate extends FlxSprite
 			_matrix.b = oldMatrix.b;
 			_matrix.d = oldMatrix.d;
 		}
-		return Value;
+		return flipY = Value;
 	}
 
 	override function destroy()
