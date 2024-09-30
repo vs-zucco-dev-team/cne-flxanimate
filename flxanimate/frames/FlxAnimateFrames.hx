@@ -112,49 +112,12 @@ class FlxAnimateFrames extends FlxAtlasFrames
 		{
 			var graphic = FlxG.bitmap.add(curSpritemap);
 			var spritemapFrames = FlxAtlasFrames.findFrame(graphic);
-			var padding:Float = 0;
-			if (curJson.ATLAS.SPRITES.length > 1) { // 2 or more, detect padding
-				var sprites = [for(s in curJson.ATLAS.SPRITES) s.SPRITE];
-				sprites.sort((n1, n2) -> Std.int(n1.x - n2.x));
-
-				var lowestY:Float = Math.POSITIVE_INFINITY;
-				var yMap:Map<Int, Bool> = [];
-				for(s in sprites) {
-					var y = Std.int(s.y);
-					if (s.y < lowestY) {
-						yMap.set(y, yMap[y] != null);
-
-						if (yMap[y])
-							lowestY = y;
-					}
-				}
-				if (lowestY != Math.POSITIVE_INFINITY) {
-					var _firstRowSprites = [for(s in sprites) if (s.y == lowestY) s];
-					var dedupCheck:Array<Int> = [];
-					var firstRowSprites = [];
-					for(s in _firstRowSprites) {
-						if(!dedupCheck.contains(Std.int(s.x))) {
-							firstRowSprites.push(s);
-							dedupCheck.push(Std.int(s.x));
-						}
-					}
-					if (firstRowSprites.length > 1) {
-						padding = firstRowSprites[1].x - firstRowSprites[0].x - firstRowSprites[0].w;
-					}
-				}
-			}
-			if(padding < 0) {
-				trace("BUG: " + padding + " => 0");
-				padding = 0;
-			} else {
-				trace(padding);
-			}
 			if (spritemapFrames == null)
 			{
 				spritemapFrames = new FlxAnimateFrames();
 				for (curSprite in curJson.ATLAS.SPRITES)
 				{
-					spritemapFrames.pushFrame(textureAtlasHelper(graphic,curSprite.SPRITE, curJson.meta, padding));
+					spritemapFrames.pushFrame(textureAtlasHelper(graphic,curSprite.SPRITE, curJson.meta));
 				}
 			}
 			graphic.addFrameCollection(spritemapFrames);
@@ -499,7 +462,7 @@ class FlxAnimateFrames extends FlxAtlasFrames
 		Frames.addAtlasFrame(frameRect, sourceSize, offset, name, angle);
 	}
 
-	static function textureAtlasHelper(SpriteMap:FlxGraphic, limb:AnimateSpriteData, curMeta:Meta, ?padding:Float = 0)
+	static function textureAtlasHelper(SpriteMap:FlxGraphic, limb:AnimateSpriteData, curMeta:Meta)
 	{
 		var rotated = limb.rotated;
 		var width = (rotated) ? limb.h : limb.w;
@@ -509,9 +472,7 @@ class FlxAnimateFrames extends FlxAtlasFrames
 		curFrame.name = limb.name;
 		curFrame.sourceSize.set(width, height);
 
-		var halfPadding = padding / 2;
-		curFrame.offset.set(halfPadding, halfPadding);
-		curFrame.frame = new FlxRect(limb.x - halfPadding, limb.y - halfPadding, limb.w+padding, limb.h+padding);
+		curFrame.frame = new FlxRect(limb.x, limb.y, limb.w, limb.h);
 
 		if (rotated)
 			curFrame.angle = FlxFrameAngle.ANGLE_NEG_90;
