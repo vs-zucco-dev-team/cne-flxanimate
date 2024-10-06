@@ -1,15 +1,16 @@
 package flxanimate.animate;
 
-import flixel.util.FlxDestroyUtil;
-import flixel.math.FlxMath;
-import haxe.extern.EitherType;
-import flxanimate.animate.SymbolParameters;
-import flixel.util.FlxStringUtil;
-import openfl.geom.ColorTransform;
-import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 import flixel.FlxG;
+import flixel.math.FlxMath;
 import flixel.math.FlxMatrix;
+import flixel.util.FlxDestroyUtil.IFlxDestroyable;
+import flixel.util.FlxDestroyUtil;
+import flixel.util.FlxSignal.FlxTypedSignal;
+import flixel.util.FlxStringUtil;
+import flxanimate.animate.SymbolParameters;
 import flxanimate.data.AnimationData;
+import haxe.extern.EitherType;
+import openfl.geom.ColorTransform;
 #if FLX_SOUND_SYSTEM
 import flixel.system.FlxSound;
 #end

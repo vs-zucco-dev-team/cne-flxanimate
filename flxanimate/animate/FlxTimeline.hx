@@ -1,9 +1,9 @@
 package flxanimate.animate;
 
-import haxe.extern.EitherType;
-import flxanimate.data.AnimationData.SymbolData;
 import flixel.FlxG;
+import flxanimate.data.AnimationData.SymbolData;
 import flxanimate.data.AnimationData.Timeline;
+import haxe.extern.EitherType;
 
 class FlxTimeline
 {

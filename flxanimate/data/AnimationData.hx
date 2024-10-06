@@ -1,9 +1,9 @@
 package flxanimate.data;
 
-import flixel.util.FlxDirection;
 import flixel.util.FlxColor;
-import openfl.geom.ColorTransform;
+import flixel.util.FlxDirection;
 import openfl.filters.*;
+import openfl.geom.ColorTransform;
 
 @:noCompletion
 class AnimationData

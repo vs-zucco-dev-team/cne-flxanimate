@@ -1,9 +1,9 @@
 package flxanimate.animate;
 
-import flixel.util.FlxDestroyUtil;
 import flixel.math.FlxPoint;
-import openfl.geom.ColorTransform;
+import flixel.util.FlxDestroyUtil;
 import flxanimate.data.AnimationData;
+import openfl.geom.ColorTransform;
 
 class SymbolParameters
 {

@@ -1,31 +1,31 @@
 package flxanimate.frames;
 
-import flixel.util.FlxSort;
-import flixel.graphics.frames.FlxFramesCollection;
-import flxanimate.data.AnimationData.OneOfTwo;
-import openfl.geom.Rectangle;
-import flxanimate.data.SpriteMapData.Meta;
-import haxe.io.Bytes;
-import flxanimate.zip.Zip;
-import haxe.io.BytesInput;
-import flixel.math.FlxMatrix;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
+import flixel.graphics.frames.FlxFrame;
+import flixel.graphics.frames.FlxFramesCollection;
+import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
+import flixel.system.FlxAssets.FlxGraphicAsset;
+import flixel.util.FlxSort;
+import flxanimate.data.AnimationData.OneOfTwo;
 import flxanimate.data.SpriteMapData.AnimateAtlas;
 import flxanimate.data.SpriteMapData.AnimateSpriteData;
+import flxanimate.data.SpriteMapData.Meta;
+import flxanimate.zip.Zip;
+import haxe.io.Bytes;
+import haxe.io.BytesInput;
 import openfl.Assets;
 import openfl.display.BitmapData;
-import flixel.system.FlxAssets.FlxGraphicAsset;
+import openfl.geom.Rectangle;
 #if haxe4
 import haxe.xml.Access;
 #else
 import haxe.xml.Fast as Access;
 #end
-import flixel.graphics.frames.FlxFrame;
 
 class FlxAnimateFrames extends FlxAtlasFrames
 {

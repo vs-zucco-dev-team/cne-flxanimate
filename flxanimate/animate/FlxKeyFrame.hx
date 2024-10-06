@@ -1,12 +1,12 @@
 package flxanimate.animate;
 
-import openfl.utils.Function;
-import haxe.extern.EitherType;
 import flixel.FlxG;
 import flixel.math.FlxMath;
-import openfl.geom.ColorTransform;
-import flxanimate.data.AnimationData;
 import flxanimate.animate.FlxLayer;
+import flxanimate.data.AnimationData;
+import haxe.extern.EitherType;
+import openfl.geom.ColorTransform;
+import openfl.utils.Function;
 
 class FlxKeyFrame
 {

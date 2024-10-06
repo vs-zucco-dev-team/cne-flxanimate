@@ -1,9 +1,9 @@
 package flxanimate.animate;
 
-import flixel.util.FlxDestroyUtil.IFlxDestroyable;
-import flixel.math.FlxPoint;
-import flxanimate.data.AnimationData;
 import flixel.math.FlxMatrix;
+import flixel.math.FlxPoint;
+import flixel.util.FlxDestroyUtil.IFlxDestroyable;
+import flxanimate.data.AnimationData;
 import openfl.geom.ColorTransform;
 
 class FlxElement implements IFlxDestroyable

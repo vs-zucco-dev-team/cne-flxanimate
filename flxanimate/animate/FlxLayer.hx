@@ -1,12 +1,12 @@
 package flxanimate.animate;
 
 
-import flxanimate.data.AnimationData.LayerType;
 import flixel.math.FlxMath;
-import haxe.extern.EitherType;
-import flxanimate.data.AnimationData.Frame;
 import flixel.util.FlxDestroyUtil.IFlxDestroyable;
+import flxanimate.data.AnimationData.Frame;
+import flxanimate.data.AnimationData.LayerType;
 import flxanimate.data.AnimationData.Layers;
+import haxe.extern.EitherType;
 
 
 class FlxLayer implements IFlxDestroyable

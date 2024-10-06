@@ -1,13 +1,13 @@
 package flxanimate.animate;
 
+import flixel.FlxG;
+import flixel.math.FlxMatrix;
+import flxanimate.data.AnimationData;
+import haxe.extern.EitherType;
+import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.events.EventType;
-import openfl.display.Sprite;
 import openfl.utils.Function;
-import haxe.extern.EitherType;
-import flixel.math.FlxMatrix;
-import flixel.FlxG;
-import flxanimate.data.AnimationData;
 
 class FlxSymbol
 {

@@ -2,8 +2,8 @@ package flxanimate.zip;
 
 import haxe.io.Bytes;
 import haxe.io.BytesInput;
-import haxe.zip.Reader;
 import haxe.zip.Entry;
+import haxe.zip.Reader;
 #if lime
 import lime._internal.format.Deflate;
 #end
