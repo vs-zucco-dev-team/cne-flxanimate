@@ -15,11 +15,19 @@ import openfl.geom.ColorTransform;
 import flixel.system.FlxSound;
 #end
 
+class FlxSymbolAnimation {
+	public var instance:FlxElement;
+	public var frameRate:Float;
 
-typedef SymbolStuff = {
-	var instance:FlxElement;
-	var frameRate:Float;
-};
+	public var onFinish:FlxTypedSignal<Void->Void> = new FlxTypedSignal();
+
+	public function new(instance:FlxElement, frameRate:Float) {
+		this.instance = instance;
+		this.frameRate = frameRate;
+	}
+}
+
+
 typedef ClickStuff = {
 	?OnClick:Void->Void,
 	?OnRelease:Void->Void
@@ -37,11 +45,13 @@ class FlxAnim implements IFlxDestroyable
 	public var stageInstance:FlxElement;
 
 	public var curInstance:FlxElement;
+	public var curAnimation:FlxSymbolAnimation;
 
 	public var metadata:FlxMetaData;
 
 	public var curSymbol(get, never):FlxSymbol;
 	public var finished(get, never):Bool;
+	public var isAtEnd(get, never):Bool;
 	public var reversed(get, set):Bool;
 	/**
 		Checks if the movieclip should move or not. for having a similar experience to swfs
@@ -64,7 +74,7 @@ class FlxAnim implements IFlxDestroyable
 
 	public var curFrame(get, set):Int;
 
-	var animsMap:Map<String, SymbolStuff> = new Map();
+	var animsMap:Map<String, FlxSymbolAnimation> = new Map();
 
 	/**
 	 * Internal, the parsed loop type
@@ -110,13 +120,18 @@ class FlxAnim implements IFlxDestroyable
 		pause();
 		var isNewAnim = false;
 		@:privateAccess
-		if ([null, ""].indexOf(Name) == -1)
+		if(Name != null && Name != "")
 		{
 			var curThing = animsMap.get(Name);
 			if (curThing == null)
 			{
 				var symbol = symbolDictionary.get(Name);
-				if (symbol != null) curThing = {instance: (symbol.name == curSymbol.name) ? curInstance : new FlxElement(new SymbolParameters(Name)), frameRate: metadata.frameRate};
+				if (symbol != null)
+					curThing = new FlxSymbolAnimation(
+						(symbol.name == curSymbol.name) ? curInstance : new FlxElement(new SymbolParameters(Name)),
+						metadata.frameRate
+					);
+
 
 				if (curThing == null)
 				{
@@ -132,6 +147,7 @@ class FlxAnim implements IFlxDestroyable
 				isNewAnim = true;
 
 			curInstance = curThing.instance;
+			curAnimation = curThing;
 		}
 		if (Force || finished || isNewAnim) {
 			curFrame = (Reverse) ? Frame - length : Frame;
@@ -180,14 +196,18 @@ class FlxAnim implements IFlxDestroyable
 
 		if (finished)
 		{
+			if(curAnimation != null)
+				curAnimation.onFinish.dispatch();
 			if (onComplete != null)
 				onComplete();
 			pause();
 		}
 	}
-	function get_finished()
-	{
-		return (loopType == PlayOnce) && (reversed && curFrame == 0 || !reversed && curFrame >= length - 1);
+	function get_finished() {
+		return (loopType == PlayOnce) && isAtEnd;
+	}
+	inline function get_isAtEnd() {
+		return (reversed && curFrame == 0 || !reversed && curFrame >= length - 1);
 	}
 	function get_curFrame()
 	{
@@ -224,7 +244,7 @@ class FlxAnim implements IFlxDestroyable
 			}
 		}
 		if (params.symbol.name != null)
-			animsMap.set(Name, {instance: params, frameRate: FrameRate});
+			animsMap.set(Name, new FlxSymbolAnimation(params, FrameRate));
 		else
 			FlxG.log.error('No symbol was found with the name $SymbolName!');
 	}
@@ -261,7 +281,6 @@ class FlxAnim implements IFlxDestroyable
 			var i = Indices[index];
 			var keyframe = new FlxKeyFrame(index);
 
-
 			var params = new SymbolParameters(SymbolName, params.symbol.loop);
 			params.firstFrame = i;
 			keyframe.add(new FlxElement(params));
@@ -272,8 +291,7 @@ class FlxAnim implements IFlxDestroyable
 
 		symbolDictionary.set(Name, symbol);
 
-
-		animsMap.set(Name, {instance: params, frameRate: FrameRate});
+		animsMap.set(Name, new FlxSymbolAnimation(params, FrameRate));
 	}
 
 
@@ -295,7 +313,7 @@ class FlxAnim implements IFlxDestroyable
 	{
 		symbolDictionary.set(Name, new FlxSymbol(Name, Timeline));
 		var params = new FlxElement(new SymbolParameters((Looped) ? Loop : PlayOnce));
-		animsMap.set(Name, {instance: params, frameRate: FrameRate});
+		animsMap.set(Name, new FlxSymbolAnimation(params, FrameRate));
 	}
 
 	public inline function get_length()
