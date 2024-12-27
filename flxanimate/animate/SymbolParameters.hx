@@ -3,6 +3,7 @@ package flxanimate.animate;
 import flixel.math.FlxPoint;
 import flixel.util.FlxDestroyUtil;
 import flxanimate.data.AnimationData;
+import openfl.display.BlendMode;
 import openfl.geom.ColorTransform;
 
 class SymbolParameters
@@ -20,6 +21,8 @@ class SymbolParameters
 	public var name:String;
 
 	public var colorEffect:ColorEffect;
+
+	public var blendMode(default, set):BlendMode = null;
 
 	@:allow(flxanimate.FlxAnimate)
 	@:allow(flxanimate.animate.FlxAnim)
@@ -55,6 +58,10 @@ class SymbolParameters
 		this.type = type;
 		loop = (type == null) ? null : Loop;
 
+		if(type == Graphic) {
+			blendMode = null;
+		}
+
 		return type;
 	}
 
@@ -69,6 +76,18 @@ class SymbolParameters
 		}
 
 		return loop;
+	}
+
+	function set_blendMode(value:BlendMode)
+	{
+		if (type == Graphic) return blendMode = null;
+		if (blendMode != value)
+		{
+			blendMode = value;
+			//if (blendMode != NORMAL && _filterFrame == null)
+			//	_renderDirty = true;
+		}
+		return value;
 	}
 
 	function get__colorEffect()

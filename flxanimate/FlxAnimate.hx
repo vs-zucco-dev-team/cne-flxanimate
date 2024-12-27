@@ -24,6 +24,7 @@ import flxanimate.zip.Zip;
 import haxe.io.BytesInput;
 import openfl.Assets;
 import openfl.display.BitmapData;
+import openfl.display.BlendMode;
 import openfl.geom.ColorTransform;
 import openfl.geom.Matrix;
 import openfl.geom.Rectangle;
@@ -115,7 +116,7 @@ class FlxAnimate extends FlxSprite
 	{
 		if (!Assets.exists('$Path/Animation.json') && haxe.io.Path.extension(Path) != "zip")
 		{
-			FlxG.log.error('Animation file not found in specified path: "$path", have you written the correct path?');
+			FlxG.log.error('Animation file not found in specified path: "$Path", have you written the correct path?');
 			return;
 		}
 		anim._loadAtlas(atlasSetting(Path));
@@ -130,7 +131,8 @@ class FlxAnimate extends FlxSprite
 
 		updateSkewMatrix();
 
-		parseElement(anim.curInstance, anim.curFrame, _matrix, colorTransform, true);
+		if(anim.curInstance != null)
+			parseElement(anim.curInstance, anim.curFrame, _matrix, colorTransform, blend, true);
 		if (showPivot)
 			drawLimb(_pivot, new FlxMatrix(1,0,0,1, origin.x, origin.y));
 	}
@@ -138,12 +140,16 @@ class FlxAnimate extends FlxSprite
 	 * This basically renders an element of any kind, both limbs and symbols.
 	 * It should be considered as the main function that makes rendering a symbol possible.
 	 */
-	function parseElement(instance:FlxElement, curFrame:Int, m:FlxMatrix, colorFilter:ColorTransform, mainSymbol:Bool = false)
+	function parseElement(instance:FlxElement, curFrame:Int, m:FlxMatrix, colorFilter:ColorTransform, blendMode:BlendMode, mainSymbol:Bool = false)
 	{
+		if (instance == null)
+			return;
+
 		var colorEffect = colorTransformsPool.get();
 		var matrix = matrixesPool.get();
 
 		if (instance.symbol != null) colorEffect.concat(instance.symbol._colorEffect);
+		if (instance.symbol != null && instance.symbol.blendMode != null) blendMode = instance.symbol.blendMode;
 		matrix.concat(instance.matrix);
 
 		colorEffect.concat(colorFilter);
@@ -152,7 +158,7 @@ class FlxAnimate extends FlxSprite
 
 		if (instance.bitmap != null)
 		{
-			drawLimb(frames.getByName(instance.bitmap), matrix, colorEffect);
+			drawLimb(frames.getByName(instance.bitmap), matrix, colorEffect, blendMode);
 
 			colorTransformsPool.put(colorEffect);
 			matrixesPool.put(matrix);
@@ -199,7 +205,7 @@ class FlxAnimate extends FlxSprite
 				var coloreffect = colorTransformsPool.get();
 				coloreffect.concat(frame._colorEffect);
 				coloreffect.concat(colorEffect);
-				parseElement(element, firstframe, matrix, coloreffect);
+				parseElement(element, firstframe, matrix, coloreffect, blendMode);
 				colorTransformsPool.put(coloreffect);
 			}
 		}
@@ -214,9 +220,10 @@ class FlxAnimate extends FlxSprite
 		var badPress:Bool = false;
 		var goodPress:Bool = false;
 		#if FLX_MOUSE
-		if (FlxG.mouse.pressed && FlxG.mouse.overlaps(this))
+		var overlaps = FlxG.mouse.overlaps(this);
+		if (FlxG.mouse.pressed && overlaps)
 			goodPress = true;
-		if (FlxG.mouse.pressed && !FlxG.mouse.overlaps(this) && !goodPress)
+		if (FlxG.mouse.pressed && !overlaps && !goodPress)
 		{
 			badPress = true;
 		}
@@ -225,7 +232,7 @@ class FlxAnimate extends FlxSprite
 			badPress = false;
 			goodPress = false;
 		}
-		if (FlxG.mouse.overlaps(this) && !badPress)
+		if (overlaps && !badPress)
 		{
 			@:privateAccess
 			var event = anim.buttonMap.get(anim.curSymbol.name);
@@ -256,10 +263,13 @@ class FlxAnimate extends FlxSprite
 
 	static var rMatrix = new FlxMatrix();
 
-	function drawLimb(limb:FlxFrame, _matrix:FlxMatrix, ?colorTransform:ColorTransform)
+	function drawLimb(limb:FlxFrame, _matrix:FlxMatrix, ?colorTransform:ColorTransform, ?blendMode:BlendMode)
 	{
 		if (alpha == 0 || colorTransform != null && (colorTransform.alphaMultiplier == 0 || colorTransform.alphaOffset == -255) || limb == null || limb.type == EMPTY)
 			return;
+
+		if (blendMode == null)
+			blendMode = BlendMode.NORMAL;
 
 		for (camera in cameras)
 		{
@@ -297,7 +307,7 @@ class FlxAnimate extends FlxSprite
 			}
 
 			rMatrix.translate(_point.x, _point.y);
-			camera.drawPixels(limb, null, rMatrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
+			camera.drawPixels(limb, null, rMatrix, colorTransform, blendMode, antialiasing, shaderEnabled ? shader : null);
 			#if FLX_DEBUG
 			FlxBasic.visibleCount++;
 			#end

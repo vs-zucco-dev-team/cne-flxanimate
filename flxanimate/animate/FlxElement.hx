@@ -4,6 +4,7 @@ import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
 import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 import flxanimate.data.AnimationData;
+import openfl.display.BlendMode;
 import openfl.geom.ColorTransform;
 
 class FlxElement implements IFlxDestroyable
@@ -55,6 +56,60 @@ class FlxElement implements IFlxDestroyable
 
 	static var matrixNames = ["m00","m01","m10","m11","m30","m31"];
 
+	static function blendFromString(value:String):BlendMode
+	{
+		return switch (value.toUpperCase())
+		{
+			case "ADD": BlendMode.ADD;
+			case "ALPHA": BlendMode.ALPHA;
+			case "DARKEN": BlendMode.DARKEN;
+			case "DIFFERENCE": BlendMode.DIFFERENCE;
+			case "ERASE": BlendMode.ERASE;
+			case "HARDLIGHT": BlendMode.HARDLIGHT;
+			case "INVERT": BlendMode.INVERT;
+			case "LAYER": BlendMode.LAYER;
+			case "LIGHTEN": BlendMode.LIGHTEN;
+			case "MULTIPLY": BlendMode.MULTIPLY;
+			case "NORMAL": BlendMode.NORMAL;
+			case "OVERLAY": BlendMode.OVERLAY;
+			case "SCREEN": BlendMode.SCREEN;
+			case "SHADER": BlendMode.SHADER;
+			case "SUBTRACT": BlendMode.SUBTRACT;
+			default: cast Std.parseInt(value);
+		}
+	}
+
+	static function parseBlendMode(name:String, blendMode:BlendMode):ParseBlendModeResult {
+		var _bl = name.indexOf("_bl");
+		if (_bl != -1)
+		{
+			_bl += 3;
+
+			var end = name.indexOf("_", _bl);
+			var temp = name.substring(_bl, end);
+			blendMode = blendFromString(temp);
+
+			name = name.substring(end + 1);
+		}
+
+		// _BLEND_<mode>_instance
+		// If invalid the instance will be the same as input
+		var _blend = name.indexOf("_BLEND_");
+		if (_blend != -1) {
+			var end = name.indexOf("_", _blend + 8);
+			if(end != -1) {
+				var temp = name.substring(_blend + 7, end);
+				blendMode = blendFromString(temp);
+				name = name.substring(end + 1);
+			}
+		}
+
+		return {
+			name: name,
+			blendMode: blendMode
+		};
+	}
+
 	public static function fromJSON(element:Element)
 	{
 		var symbol = element.SI != null;
@@ -62,12 +117,22 @@ class FlxElement implements IFlxDestroyable
 		{
 			params = new SymbolParameters();
 			params.instance = element.SI.IN;
+			params.name = element.SI.SN;
 			params.type = switch (element.SI.ST)
 			{
 				case movieclip, "movieclip": MovieClip;
 				case button, "button": Button;
 				default: Graphic;
 			}
+
+			var temp = parseBlendMode(params.name, params.blendMode);
+			//params.name = temp.name;
+			params.blendMode = temp.blendMode;
+
+			var temp = parseBlendMode(params.instance, params.blendMode);
+			params.instance = temp.name;
+			params.blendMode = temp.blendMode;
+
 			var lp:LoopType = (element.SI.LP == null) ? loop : element.SI.LP.split("R")[0];
 			params.loop = switch (lp) // remove the reverse sufix
 			{
@@ -78,7 +143,6 @@ class FlxElement implements IFlxDestroyable
 			params.reverse = (element.SI.LP == null) ? false : StringTools.contains(element.SI.LP, "R");
 			params.firstFrame = element.SI.FF;
 			params.colorEffect = AnimationData.fromColorJson(element.SI.C);
-			params.name = element.SI.SN;
 			params.transformationPoint.set(element.SI.TRP.x, element.SI.TRP.y);
 		} else {
 			params = null;
@@ -107,4 +171,12 @@ class FlxElement implements IFlxDestroyable
 			new FlxMatrix(m[0], m[1], m[2], m[3], m[4] + pos.x, m[5] + pos.y)
 		);
 	}
+}
+
+@:structInit
+@:dox(hide)
+class ParseBlendModeResult
+{
+	public var name:String;
+	public var blendMode:BlendMode;
 }
