@@ -225,15 +225,14 @@ class FlxAnim implements IFlxDestroyable
 		return curSymbol.curFrame;
 	}
 
-
 	public function existsSymbol(SymbolName:String):String {
 		for (name in symbolDictionary.keys())
+		{
+			if (startsWith(name, SymbolName))
 			{
-				if (startsWith(name, SymbolName))
-				{
-					return name;
-				}
+				return name;
 			}
+		}
 		return null;
 	}
 
