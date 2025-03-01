@@ -224,6 +224,19 @@ class FlxAnim implements IFlxDestroyable
 
 		return curSymbol.curFrame;
 	}
+
+
+	public function existsSymbol(SymbolName:String):String {
+		for (name in symbolDictionary.keys())
+			{
+				if (startsWith(name, SymbolName))
+				{
+					return name;
+				}
+			}
+		return null;
+	}
+
 	/**
 	 * Creates an animation using an already made symbol from a texture atlas
 	 * @param Name The name of the animation
@@ -235,14 +248,8 @@ class FlxAnim implements IFlxDestroyable
 	public function addBySymbol(Name:String, SymbolName:String, FrameRate:Float = 0, Looped:Bool = true, X:Float = 0, Y:Float = 0)
 	{
 		var params = new FlxElement(new SymbolParameters((Looped) ? Loop : PlayOnce), new FlxMatrix(1,0,0,1,X,Y));
-		for (name in symbolDictionary.keys())
-		{
-			if (startsWith(name, SymbolName))
-			{
-				params.symbol.name = name;
-				break;
-			}
-		}
+		params.symbol.name = existsSymbol(SymbolName);
+
 		if (params.symbol.name != null)
 			animsMap.set(Name, new FlxSymbolAnimation(params, FrameRate));
 		else
@@ -267,7 +274,8 @@ class FlxAnim implements IFlxDestroyable
 	}
 	public function addBySymbolIndices(Name:String, SymbolName:String, Indices:Array<Int>, FrameRate:Float = 0, Looped:Bool = true, X:Float = 0, Y:Float = 0)
 	{
-		if (!symbolDictionary.exists(SymbolName))
+		var detectedName:String = existsSymbol(SymbolName);
+		if (detectedName == null)
 		{
 			FlxG.log.error('$SymbolName does not exist as a symbol! maybe you misspelled it?');
 			return;
@@ -281,7 +289,7 @@ class FlxAnim implements IFlxDestroyable
 			var i = Indices[index];
 			var keyframe = new FlxKeyFrame(index);
 
-			var params = new SymbolParameters(SymbolName, params.symbol.loop);
+			var params = new SymbolParameters(detectedName, params.symbol.loop);
 			params.firstFrame = i;
 			keyframe.add(new FlxElement(params));
 			timeline.get(0).add(keyframe);
