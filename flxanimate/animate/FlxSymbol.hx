@@ -27,8 +27,8 @@ class FlxSymbol
 	@:allow(flxanimate.animate.FlxAnim)
 	var _curFrame:Int;
 
-	@:allow(flxanimate.FlxAnimate)
-	var _shootCallback:Bool;
+	//@:allow(flxanimate.FlxAnimate)
+	//var _shootCallback:Bool;
 
 	var _tick:Float;
 
@@ -52,11 +52,11 @@ class FlxSymbol
 		}
 		return sprite;
 	}
-	public function hideLayer(layer:String)
+	public inline function hideLayer(layer:String)
 	{
 		timeline.hide(layer);
 	}
-	public function showLayer(layer:String)
+	public inline function showLayer(layer:String)
 	{
 		timeline.show(layer);
 	}
@@ -344,25 +344,25 @@ class FlxSymbol
 		oldElement = newElement;
 	}
 
-	function get_length()
+	inline function get_length()
 	{
 		return timeline.totalFrames;
 	}
-	function get_layers()
+	inline function get_layers()
 	{
 		return timeline.getListNames();
 	}
-	function get_curFrame()
+	inline function get_curFrame()
 	{
 		return _curFrame;
 	}
-	function set_curFrame(value:Int)
+	inline function set_curFrame(value:Int)
 	{
 		_curFrame = value;
-		_shootCallback = false;
+		//_shootCallback = false;
 
 		return value;
 	}
 
-	public static function prepareMatrix(d:Dynamic, e:Dynamic) {return new FlxMatrix();}
+	inline public static function prepareMatrix(d:Dynamic, e:Dynamic) {return new FlxMatrix();}
 }

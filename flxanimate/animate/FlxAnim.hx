@@ -20,6 +20,7 @@ class FlxSymbolAnimation {
 	public var frameRate:Float;
 
 	public var onFinish:FlxTypedSignal<Void->Void> = new FlxTypedSignal();
+	public var onFinishEnd:FlxTypedSignal<Void->Void> = new FlxTypedSignal();
 
 	public function new(instance:FlxElement, frameRate:Float) {
 		this.instance = instance;
@@ -54,7 +55,7 @@ class FlxAnim implements IFlxDestroyable
 	public var isAtEnd(get, never):Bool;
 	public var reversed(get, set):Bool;
 	/**
-		Checks if the movieclip should move or not. for having a similar experience to swfs
+		Checks if the MovieClip should move or not. for having a similar experience to SWFs
 	**/
 	public var swfRender:Bool = false;
 
@@ -62,8 +63,10 @@ class FlxAnim implements IFlxDestroyable
 	/**
 	 * When ever the animation is playing.
 	 */
-	public var isPlaying(default, null):Bool;
+	public var isPlaying(default, null):Bool = false;
 	public var onComplete:()->Void;
+
+	public var onFinishEnd:FlxTypedSignal<String->Void> = new FlxTypedSignal();
 
 	public var framerate(default, set):Float;
 
@@ -85,14 +88,16 @@ class FlxAnim implements IFlxDestroyable
 
 	var _parent:FlxAnimate;
 
-	var _tick:Float;
+	var _tick:Float = 0;
+
+	/**
+	 * How fast or slow time should pass for this animation controller
+	 */
+	public var timeScale:Float = 1.0;
 
 	public function new(parent:FlxAnimate, ?coolParsed:AnimAtlas)
 	{
-		_tick = 0;
 		_parent = parent;
-		symbolDictionary = [];
-		isPlaying = false;
 		if (coolParsed != null) _loadAtlas(coolParsed);
 	}
 	@:allow(flxanimate.FlxAnimate)
@@ -113,7 +118,7 @@ class FlxAnim implements IFlxDestroyable
 		metadata = new FlxMetaData(animationFile.AN.N, animationFile.MD.FRT);
 		framerate = metadata.frameRate;
 	}
-	public var symbolDictionary:Map<String, FlxSymbol>;
+	public var symbolDictionary:Map<String, FlxSymbol> = [];
 
 	public function play(?Name:String = "", ?Force:Bool = false, ?Reverse:Bool = false, ?Frame:Int = 0)
 	{
@@ -179,19 +184,50 @@ class FlxAnim implements IFlxDestroyable
 		}
 	}
 
+	inline function _doFinishedEndCallback():Void
+	{
+		if (curAnimation != null)
+			curAnimation.onFinishEnd.dispatch();
+		onFinishEnd.dispatch(_frameFinishedName);
+	}
+
+	/**
+	 * Internal, used to wait the frameDuration at the end of the animation.
+	 */
+	var _frameFinishedEndTimer:Float = 0;
+
+	var _frameFinishedName:String = null;
+
 	public function update(elapsed:Float)
 	{
-		if (frameDelay == 0 || !isPlaying || finished) return;
+		if (!isPlaying)
+			return;
+		if (_frameFinishedEndTimer > 0)
+		{
+			_frameFinishedEndTimer -= elapsed * timeScale;
+			if (_frameFinishedEndTimer <= 0)
+			{
+				if (curInstance != null && curInstance.symbol != null && curInstance.symbol.name != _frameFinishedName)
+				{
+					_frameFinishedEndTimer = 0;
+					_doFinishedEndCallback();
+				}
+			}
+		}
+		if (finished)
+			return;
+		if (frameDelay == 0)
+			return;
 
-		_tick += elapsed;
+		_tick += elapsed * timeScale;
 
 		while (_tick > frameDelay)
 		{
 			(reversed) ? curFrame-- : curFrame++;
 			_tick -= frameDelay;
 
-			@:privateAccess
-			curSymbol._shootCallback = true;
+			//@:privateAccess
+			//curSymbol._shootCallback = true;
 		}
 
 		if (finished)
@@ -200,6 +236,9 @@ class FlxAnim implements IFlxDestroyable
 				curAnimation.onFinish.dispatch();
 			if (onComplete != null)
 				onComplete();
+			_frameFinishedEndTimer = frameDelay;
+			if (curInstance != null && curInstance.symbol != null)
+				_frameFinishedName = curInstance.symbol.name;
 			pause();
 		}
 	}
