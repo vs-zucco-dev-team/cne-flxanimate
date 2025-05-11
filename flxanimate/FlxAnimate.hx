@@ -1,35 +1,44 @@
 package flxanimate;
 
-import flxanimate.interfaces.IFilterable;
-import flixel.FlxBasic;
-import flixel.FlxCamera;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.graphics.FlxGraphic;
-import flixel.graphics.frames.FlxFrame;
-import flixel.math.FlxAngle;
-import flixel.math.FlxMath;
-import flixel.math.FlxMatrix;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import flixel.system.FlxSound;
-import flixel.util.FlxColor;
-import flixel.util.FlxDestroyUtil;
-import flixel.util.FlxDestroyUtil;
-import flixel.util.FlxPool;
-import flxanimate.animate.*;
-import flxanimate.animate.FlxAnim;
-import flxanimate.data.AnimationData;
-import flxanimate.frames.FlxAnimateFrames;
-import flxanimate.zip.Zip;
-import haxe.io.BytesInput;
-import openfl.Assets;
-import openfl.display.BitmapData;
-import openfl.display.BlendMode;
-import openfl.geom.ColorTransform;
 import openfl.geom.Matrix;
+import flixel.math.FlxAngle;
+import openfl.geom.Point;
+import flxanimate.interfaces.IFilterable;
+import openfl.display.BlendMode;
+import flixel.graphics.frames.FlxFramesCollection;
+import haxe.extern.EitherType;
+import flxanimate.display.FlxAnimateFilterRenderer;
+import openfl.filters.BitmapFilter;
+import flxanimate.geom.FlxMatrix3D;
+import openfl.display.Sprite;
+import flixel.util.FlxColor;
+import flixel.graphics.FlxGraphic;
 import openfl.geom.Rectangle;
-
+import openfl.display.BitmapData;
+import flixel.util.FlxDestroyUtil;
+import flixel.math.FlxRect;
+import flixel.graphics.frames.FlxFrame;
+import flixel.math.FlxPoint;
+import flixel.FlxCamera;
+import flxanimate.animate.*;
+import flxanimate.zip.Zip;
+import openfl.Assets;
+import haxe.io.BytesInput;
+#if (flixel >= "5.3.0")
+import flixel.sound.FlxSound;
+#else
+import flixel.system.FlxSound;
+#end
+import flixel.FlxG;
+import flxanimate.data.AnimationData;
+import flixel.FlxSprite;
+import flxanimate.animate.FlxAnim;
+import flxanimate.frames.FlxAnimateFrames;
+import flixel.math.FlxMatrix;
+import openfl.geom.ColorTransform;
+import flixel.math.FlxMath;
+import flixel.FlxBasic;
+import flixel.graphics.frames.FlxFramesCollection;
 typedef Settings = {
 	?ButtonSettings:Map<String, flxanimate.animate.FlxAnim.ButtonSettings>,
 	?FrameRate:Float,
