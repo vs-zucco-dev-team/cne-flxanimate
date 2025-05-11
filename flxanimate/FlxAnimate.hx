@@ -212,6 +212,284 @@ class FlxAnimate extends FlxSprite
 
 		colorTransformsPool.put(colorEffect);
 		matrixesPool.put(matrix);
+
+		var symbol = (instance.symbol != null) ? anim.symbolDictionary.get(instance.symbol.name) : null;
+
+		if (instance.bitmap == null && symbol == null)
+			return;
+
+		if (instance.bitmap != null)
+		{
+			drawLimb(frames.getByName(instance.bitmap), matrix, colorEffect, filterin, cameras);
+			return;
+		}
+		var cacheToBitmap = !skipFilters && (instance.symbol.cacheAsBitmap || this.filters != null && mainSymbol) && (!filterin || filterin && filterInstance.instance != instance);
+
+		if (cacheToBitmap)
+		{
+			if (instance.symbol._renderDirty)
+			{
+				if (filterCamera == null)
+					instance.symbol._filterCamera = new FlxCamera(0,0,0,0,1);
+
+				instance.symbol._filterMatrix.copyFrom(instance.symbol.cacheAsBitmapMatrix);
+
+				_col.setMultipliers(1,1,1,1);
+				_col.setOffsets(0,0,0,0);
+				parseElement(instance, instance.symbol._filterMatrix, _col, _elemInstance(instance), _singleCam(instance.symbol._filterCamera));
+
+				@:privateAccess
+				renderFilter(instance.symbol, instance.symbol.filters, renderer);
+				instance.symbol._renderDirty = false;
+
+			}
+			if (instance.symbol._filterFrame != null)
+			{
+				if (instance.symbol.colorEffect != null)
+					colorEffect.concat(instance.symbol.colorEffect.c_Transform);
+
+				matrix.copyFrom(instance.symbol._filterMatrix);
+				matrix.concat(m);
+
+
+				drawLimb(instance.symbol._filterFrame, matrix, colorEffect, filterin, instance.symbol.blendMode, cameras);
+			}
+		}
+		else
+		{
+			if (instance.symbol.colorEffect != null && (!filterin || filterin && filterInstance.instance != instance))
+				colorEffect.concat(instance.symbol.colorEffect.c_Transform);
+
+			var firstFrame:Int = instance.symbol._curFrame;
+			switch (instance.symbol.type)
+			{
+				case Button: firstFrame = setButtonFrames(firstFrame);
+				default:
+			}
+
+			var layers = symbol.timeline.getList();
+
+			for (i in 0...layers.length)
+			{
+				var layer = layers[layers.length - 1 - i];
+
+				if (!layer.visible && (!filterin && mainSymbol || !anim.metadata.showHiddenLayers) /*|| layer.type == Clipper && layer._correctClip*/) continue;
+
+				/*
+				if (layer._clipper != null)
+				{
+					var layer = layer._clipper;
+					layer._setCurFrame(firstFrame);
+					var frame = layer._currFrame;
+					if (layer._filterCamera == null)
+						layer._filterCamera = new FlxCamera();
+					if (frame._renderDirty)
+					{
+						renderLayer(frame, new FlxMatrix(), new ColorTransform(), {instance: null}, [layer._filterCamera]);
+
+				// 		layer._filterMatrix.identity();
+
+						frame._renderDirty = false;
+					}
+				}
+				*/
+
+				layer._setCurFrame(firstFrame);
+
+				var frame = layer._currFrame;
+
+				if (frame == null) continue;
+
+				var toBitmap = !skipFilters && frame.filters != null;
+				var isMasked = layer._clipper != null;
+				var isMasker = layer.type == Clipper;
+
+				var coloreffect = _col;
+				coloreffect.__copyFrom(colorEffect);
+				if (frame.colorEffect != null)
+					coloreffect.concat(frame.colorEffect.__create());
+
+				if (toBitmap || isMasker)
+				{
+					if (!frame._renderDirty && layer._filterFrame != null)
+					{
+						var mat = _tmpMat;
+						mat.copyFrom(layer._filterMatrix);
+						mat.concat(matrix);
+
+						drawLimb(layer._filterFrame, mat, coloreffect, filterin, (isMasked) ? _singleCam(layer._clipper.maskCamera) : cameras);
+						continue;
+					}
+					else
+					{
+						if (layer._filterCamera == null)
+							layer._filterCamera = new FlxCamera();
+						if (isMasker && layer._filterFrame != null && frame.getList().length == 0)
+							layer.updateBitmaps(layer._bmp1.rect);
+					}
+				}
+
+				if (isMasked && (layer._clipper == null || layer._clipper._currFrame == null || layer._clipper._currFrame.getList().length == 0))
+				{
+					isMasked = false;
+				}
+
+				if (isMasked)
+				{
+					if (layer._clipper.maskCamera == null)
+						layer._clipper.maskCamera = new FlxCamera();
+					if (!frame._renderDirty)
+						continue;
+				}
+
+				_tmpMat.identity();
+				renderLayer(frame, (toBitmap || isMasker || isMasked) ? _tmpMat : matrix, coloreffect, (toBitmap || isMasker || isMasked) ? _elemInstance(null) : filterInstance, (toBitmap || isMasker) ? _singleCam(layer._filterCamera) : (isMasked) ? _singleCam(layer._clipper.maskCamera) : cameras);
+
+				if (toBitmap)
+				{
+					layer._filterMatrix.identity();
+
+					renderFilter(layer, frame.filters, renderer, null);
+
+					frame._renderDirty = false;
+
+					var mat = _tmpMat;
+					mat.copyFrom(layer._filterMatrix);
+					mat.concat(matrix);
+
+					drawLimb(layer._filterFrame, mat, coloreffect, filterin, (isMasked) ? _singleCam(layer._clipper.maskCamera) : cameras);
+				}
+				if (isMasker)
+				{
+					layer._filterMatrix.identity();
+
+					renderMask(layer, renderer);
+
+					var mat = _tmpMat;
+					mat.copyFrom(layer._filterMatrix);
+					mat.concat(matrix);
+
+					drawLimb(layer._filterFrame, mat, coloreffect, filterin, cameras);
+				}
+			}
+		}
+	}
+	function renderFilter(filterInstance:IFilterable, filters:Array<BitmapFilter>, renderer:FlxAnimateFilterRenderer, ?mask:FlxCamera)
+	{
+		var filterCamera = filterInstance._filterCamera;
+		filterCamera.render();
+
+		var rect = filterCamera.canvas.getBounds(null);
+
+		if (filters != null && filters.length > 0)
+		{
+			var extension = Rectangle.__pool.get();
+
+			for (filter in filters)
+			{
+				@:privateAccess
+				extension.__expand(-filter.__leftExtension,
+					-filter.__topExtension, filter.__leftExtension
+					+ filter.__rightExtension,
+					filter.__topExtension
+					+ filter.__bottomExtension);
+			}
+			rect.width += extension.width;
+			rect.height += extension.height;
+			rect.x = extension.x;
+			rect.y = extension.y;
+
+			Rectangle.__pool.release(extension);
+		}
+
+		filterInstance.updateBitmaps(rect);
+
+		var gfx = renderer.graphicstoBitmapData(filterCamera.canvas.graphics, filterInstance._bmp1);
+
+		if (gfx == null) return;
+
+		var gfxMask = null;
+
+		var b = Rectangle.__pool.get();
+
+		@:privateAccess
+		filterCamera.canvas.__getBounds(b, filterInstance._filterMatrix);
+
+		var point:FlxPoint = null;
+
+		renderer.applyFilter(gfx, filterInstance._filterFrame.parent.bitmap, filterInstance._bmp1, filterInstance._bmp2, filters, rect, gfxMask, point);
+		point = FlxDestroyUtil.put(point);
+
+		if (filters != null && filters.length > 0)
+			filterInstance._filterMatrix.translate(Math.round((b.x + rect.x)), Math.round((b.y + rect.y)));
+		else
+			filterInstance._filterMatrix.translate(Math.round((rect.x)), Math.round(rect.y));
+
+		@:privateAccess
+		filterCamera.clearDrawStack();
+		filterCamera.canvas.graphics.clear();
+
+		Rectangle.__pool.release(b);
+	}
+	function renderMask(instance:FlxLayer, renderer:FlxAnimateFilterRenderer)
+	{
+		var masker = instance._filterCamera;
+		masker.render();
+
+		var bounds = masker.canvas.getBounds(null);
+
+		if (bounds.width == 0)
+		{
+			@:privateAccess
+			masker.clearDrawStack();
+			masker.canvas.graphics.clear();
+
+			return;
+		}
+		instance.updateBitmaps(bounds);
+
+		var mask = instance.maskCamera;
+
+		mask.render();
+		var mBounds = mask.canvas.getBounds(null);
+
+		if (mBounds.width == 0)
+		{
+			@:privateAccess
+			masker.clearDrawStack();
+			masker.canvas.graphics.clear();
+
+			@:privateAccess
+			mask.clearDrawStack();
+			mask.canvas.graphics.clear();
+			return;
+		}
+		var p = FlxPoint.get(mBounds.x, mBounds.y);
+
+		p.x -= bounds.x;
+		p.y -= bounds.y;
+
+		var lMask = renderer.graphicstoBitmapData(mask.canvas.graphics, instance._bmp1, p);
+		var mrBmp = renderer.graphicstoBitmapData(masker.canvas.graphics, instance._bmp2);
+
+		p.put();
+
+
+		// instance._filterFrame.parent.bitmap.copyPixels(instance._bmp1, instance._bmp1.rect, instance._bmp1.rect.topLeft, instance._bmp2, instance._bmp2.rect.topLeft, true);
+		renderer.applyFilter(lMask, instance._filterFrame.parent.bitmap, lMask, null, null, mrBmp);
+
+
+		instance._filterMatrix.translate((Math.round(bounds.x)), (Math.round(bounds.y)));
+
+		@:privateAccess
+		mask.clearDrawStack();
+		mask.canvas.graphics.clear();
+
+		@:privateAccess
+		masker.clearDrawStack();
+		masker.canvas.graphics.clear();
+
+
 	}
 
 	var pressed:Bool = false;
