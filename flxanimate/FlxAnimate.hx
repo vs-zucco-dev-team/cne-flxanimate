@@ -39,6 +39,7 @@ import openfl.geom.ColorTransform;
 import flixel.math.FlxMath;
 import flixel.FlxBasic;
 import flixel.graphics.frames.FlxFramesCollection;
+import flixel.util.FlxPool;
 typedef Settings = {
 	?ButtonSettings:Map<String, flxanimate.animate.FlxAnim.ButtonSettings>,
 	?FrameRate:Float,
